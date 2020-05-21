@@ -8,13 +8,9 @@ function bids_make_tabjson(job)
 % C.Lambert - Wellcome Centre for Human Neuroimaging
 %--------------------------------------------------------------------------
 
-filename=fullfile(job.outdir{1},[job.filename,'.json']);
-
 %% Work through and make levels
-
 for i=1:numel(job.inputtab.addvar)
     f=job.inputtab.addvar(i).varname;
-    
     if ~isempty(job.inputtab.addvar(i).longname)
         root.(f).LongName=deblank(job.inputtab.addvar(i).longname);
     end
@@ -23,8 +19,9 @@ for i=1:numel(job.inputtab.addvar)
     end
     if ~isempty(job.inputtab.addvar(i).addlevel)
         for k=1:numel(job.inputtab.addvar(i).addlevel)
-            root.(f).Levels{k}.(job.inputtab.addvar(i).addlevel(k).levelcat)=job.inputtab.addvar(i).addlevel(k).levelval;
+            c{k}=containers.Map(job.inputtab.addvar(i).addlevel(k).levelval,job.inputtab.addvar(i).addlevel(k).levelcat);
         end
+        root.(f).Levels=vertcat((c{1:end}));
     end
     if ~isempty(job.inputtab.addvar(i).units)
         root.(f).Units=deblank(job.inputtab.addvar(i).units);
@@ -34,6 +31,8 @@ for i=1:numel(job.inputtab.addvar)
     end
 end
 
-spm_jsonwrite(filename,root);
+%% Write json file
+filename=fullfile(job.outdir{1},[job.filename,'.json']);
+spm_jsonwrite(filename,root,struct('indent','  '));
 end
 
