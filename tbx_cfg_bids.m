@@ -10,7 +10,7 @@ function cfg = tbx_cfg_bids
 %--------------------------------------------------------------------------
 
 if ~isdeployed
-    addpath(fullfile(spm('Dir'),'toolbox','BIDS'));
+    addpath(fullfile(spm('Dir'),'toolbox','bids_spmtoolbox'));
 end
 
 %% GENERIC: SAVE DATA
