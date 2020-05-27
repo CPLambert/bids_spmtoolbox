@@ -1,10 +1,10 @@
 {
   "var1": {
     "LongName": "this is a long name",
-    "Description": "blah",
+    "Description": "this is an even longer description",
     "Levels": {
-      "1": "male",
-      "2": "this be femail"
+      "1": "These are males",
+      "2": "Females"
     }
   }
 }
