@@ -1,0 +1,10 @@
+{
+  "MeasurementToolMetadata": {
+    "Description": "using v1.0",
+    "TermURL": "www.test.com"
+  },
+  "this_may_break": {
+    "LongName": "test",
+    "Description": "freaky"
+  }
+}
