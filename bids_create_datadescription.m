@@ -37,10 +37,9 @@ else
     root=rmfield(root,'Acknowledgements');
 end
 
-if ~isempty(job.addack)
-    for i=1:numel(job.addack)
-        f=cell2mat(fieldnames(job.addack{i}));
-        root.HowToAcknowledge{i}=deblank(job.addack{i}.(f));
+if ~isempty(job.pub)
+    for i=1:numel(job.pub)
+        root.HowToAcknowledge{i}=deblank(job.pub{i});
     end
     root.HowToAcknowledge=root.HowToAcknowledge(:);
 else
