@@ -10,7 +10,7 @@ function cfg = tbx_cfg_bids
 %--------------------------------------------------------------------------
 
 if ~isdeployed
-    addpath(fullfile(spm('Dir'),'toolbox','bids_spmtoolbox'));
+    addpath(fullfile(spm('Dir'),'toolbox','BIDS'));
 end
 
 %% GENERIC: SAVE DATA
@@ -23,7 +23,7 @@ filename.name            = 'Output filename';
 filename.help            = {'Define filename. If this is JSON file it should be the same as the corresponding tsv table'};
 filename.strtype         = 's';
 filename.val             = {''};
-filename.num             = [1 Inf];
+filename.num             = [0 Inf];
 
 % ---------------------------------------------------------------------
 % Select output directory
@@ -250,7 +250,6 @@ grant.strtype       = 's';
 grant.val           = {''};
 grant.num           = [0 Inf];
 
-
 % ---------------------------------------------------------------------
 % Add funding
 % ---------------------------------------------------------------------
@@ -418,7 +417,18 @@ derivative.name     = 'Derivative?';
 derivative.help     = {'Is this measure derived from others e.g. total score?'};
 derivative.labels   = {'Yes','No'};
 derivative.values   = {true,false};
-derivative.val      = {false};    
+derivative.val      = {false};  
+
+% ---------------------------------------------------------------------
+% Make new blank table for this json?
+% ---------------------------------------------------------------------
+maketab              = cfg_menu;
+maketab.tag          = 'maketab';
+maketab.name         = 'Create new table?';
+maketab.help         = {'Create new .tsv table for this json?'};
+maketab.labels       = {'Yes','No'};
+maketab.values       = {true,false};
+maketab.val           = {false};    
 
 % ---------------------------------------------------------------------
 % Add new variable to JSON: BIDS tabular format
@@ -456,7 +466,7 @@ inputjson.num       = [1 Inf];
 input           = cfg_branch;
 input.tag       = 'input';
 input.name      = 'New JSON file';
-input.val       = {filename inputjson};
+input.val       = {filename inputjson maketab};
 input.help      = {'Create BIDS compliant JSON files'};
 
 % ---------------------------------------------------------------------
@@ -483,15 +493,111 @@ jsonselect.ufilter = '.*';
 jsonselect.num     = [1 Inf];
 
 % ---------------------------------------------------------------------
-% Load selected JSON files into the SPM batch GUI
+% Select JSON files
 % ---------------------------------------------------------------------
-loadbatch          = cfg_menu;
-loadbatch.tag      = 'loadbatch';
-loadbatch.name     = 'Load batch window';
-loadbatch.help     = {'Open new spm batch window and load selected JSON files'};
-loadbatch.labels   = {'Yes','No'};
-loadbatch.values   = {true,false};
-loadbatch.val      = {true}; 
+jsonselect1         = cfg_files;
+jsonselect1.tag     = 'jsonselect1';
+jsonselect1.name    = 'Select JSON file';
+jsonselect1.help    = {'Select JSON file (at the moment only for tabular data)'};
+jsonselect1.filter = 'json';
+jsonselect1.ufilter = '.*';
+jsonselect1.num     = [0 inf];
+
+% ---------------------------------------------------------------------
+% Add to new table
+% ---------------------------------------------------------------------
+addmerge              = cfg_menu;
+addmerge.tag          = 'addmerge';
+addmerge.name         = 'Create batch for "Merge JSON files"';
+addmerge.help         = {'Will save a SPM batch that will load "Merge JSON files" pipeline'};
+addmerge.labels       = {'Yes','No'};
+addmerge.values       = {true,false};
+addmerge.val           = {false};  
+
+%% BRANCH SUB-COMPONENTS: Merge JSON file(s)
+% Include filename from generic for save
+% ---------------------------------------------------------------------
+% Add to new table
+% ---------------------------------------------------------------------
+addtab              = cfg_menu;
+addtab.tag          = 'addtab';
+addtab.name         = 'Add to table?';
+addtab.help         = {'Add this variable to new table?'};
+addtab.labels       = {'Yes','No'};
+addtab.values       = {true,false};
+addtab.val           = {true};    
+
+% ---------------------------------------------------------------------
+% Add to new table
+% ---------------------------------------------------------------------
+addcalc        = cfg_entry;
+addcalc.tag     = 'addcalc';
+addcalc.name    = 'Add calculation';
+addcalc.help    = {
+                      'Use some of the input variables to create a new derivative'
+                      'To use this, you must be supplying the corresponding .tsv files for all input json files'
+                      'Simply use the variable names with "tab." prefix [example here uses "score"] to write a valid matlab expression, e.g:'
+                      ''
+                      '  * Identify all those above a score threshold of 5'
+                      '        tab.score>5'
+                      '  * Add a few scores together'
+                      '        tab.score1 + tab.score2 + tab.score3 ...'
+                      '  * Create derivative scores'
+                      '        (tab.score1.*tab.score2)./tab.score3'
+}';
+addcalc.strtype = 's';
+addcalc.num     = [0 Inf];
+
+% ---------------------------------------------------------------------
+% Add TSV to extract columns (if available)
+% ---------------------------------------------------------------------
+addtsv              = cfg_files;
+addtsv.tag          = 'addtsv';
+addtsv.name         = 'TSV file';
+addtsv.help         = {'Select tsv file(s)'};
+addtsv.filter       = 'tsv';
+addtsv.ufilter      = '.*';
+addtsv.num          = [0 1];
+
+% ---------------------------------------------------------------------
+% Add new variable to JSON: BIDS tabular format - Merge JSON version
+% ---------------------------------------------------------------------
+addmvar              = cfg_repeat;
+addmvar.tag          = 'addmvar';
+addmvar.name         = 'Add datafield (tabular)';
+addmvar.values       = {addtab varname longname description catdat units url derivative addcalc};
+addmvar.val          = {addtab varname longname description};
+addmvar.help         = {'Complete JSON headings for new tabular variable. Any blank fields will be simply be removed'};
+
+% ---------------------------------------------------------------------
+% Add contents (variables) to merge JSON file
+% ---------------------------------------------------------------------
+inputmjson           = cfg_repeat;
+inputmjson.tag       = 'inputmjson';
+inputmjson.name      = 'Merge JSON: Individual file contents';
+inputmjson.values    = {addtool addmvar addtsv};
+inputmjson.help      = {'Merge JSON files to create new. If corresponding tsv files are selected, the data will be extracted and placed in new table. This can also be applied to longitudinal data. NOTE: The pipeline expects the same number of tsv entries per json file, and the rows should align (i.e. same subjects/same order). If no tsv files are selected a new blank table will be created'};
+inputmjson.val       = {};
+inputmjson.num       = [1 Inf];
+
+% ---------------------------------------------------------------------
+% Create new JSON file: Necessary input
+% ---------------------------------------------------------------------
+inputm           = cfg_branch;
+inputm.tag       = 'inputm';
+inputm.name      = 'New merge JSON files';
+inputm.val       = {jsonselect1 inputmjson};
+inputm.help      = {'Create BIDS compliant JSON files'};
+
+% ---------------------------------------------------------------------
+% Create new JSON file
+% ---------------------------------------------------------------------
+inputmtab            = cfg_repeat;
+inputmtab.tag        = 'inputmtab';
+inputmtab.name       = 'Add new JSON file';
+inputmtab.values     = {inputm};
+inputmtab.help       = {'Select contents from BIDS compliant JSON files'};
+inputmtab.val        = {inputm};
 
 %% MAIN TOOLBOX OPTIONS
 % ---------------------------------------------------------------------
@@ -520,31 +626,23 @@ makejson.prog= @bids_make_json;
 readjson     = cfg_exbranch;
 readjson.tag = 'readjson';
 readjson.name= 'Read JSON files';
-readjson.val = {jsonselect loadbatch savebatch};
-readjson.help= {'Read in JSON files and make "Create JSOB files" job batch (for checking/editing). Leave filename blank if you do not want to save batch'};
+readjson.val = {filename outdir addmerge jsonselect};
+readjson.help= {'Read in JSON files and make "Create JSOB files" job batch (for checking/editing). Currently, you have to load the .mat output into the GUI. If you select the "Merge" option, then the batch will be formatted to allow variables to be sub-selected and merged.'};
 readjson.prog= @bids_read_json;
 
 % ---------------------------------------------------------------------
-% run test
+% 3. Merge several tables/variables into new table/json
 % ---------------------------------------------------------------------
-bselect         = cfg_files;
-bselect.tag     = 'bselect';
-bselect.name    = 'Select files';
-bselect.help    = {'Select JSON files (at the moment only for tabular data)'};
-bselect.filter = 'mat';
-bselect.ufilter = '.*';
-bselect.num     = [1 Inf];
-
-runtest     = cfg_exbranch;
-runtest.tag = 'runtest';
-runtest.name= 'test';
-runtest.val = {bselect};
-runtest.help= {'Read in JSON files and make "Create JSOB files" job batch (for checking/editing). Leave filename blank if you do not want to save batch'};
-runtest.prog= @goon;
+mergetab     = cfg_exbranch;
+mergetab.tag = 'mergetab';
+mergetab.name= 'Merge JSON files (run "Read JSON" first)';
+mergetab.val = {filename outdir inputmtab};
+mergetab.help= {'Run "Read in JSON files" and select "Merge" option. Loading the resulting saved matlab batch will then populate this menu and allow you to select variables and tables to combine and create new BIDs compliant json. If there are data tables, select top directory these are contained in. If this is blank then a new empty table will be created'};
+mergetab.prog= @bids_merge_data;
 
 %% MAIN SPM MENU: BIDS TOOLBOX
 cfg                 = cfg_choice;
 cfg.tag             = 'bids';
 cfg.name            = 'BIDS';
-cfg.values          = {datadescription makejson readjson runtest};
+cfg.values          = {datadescription makejson readjson mergetab};
 end

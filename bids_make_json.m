@@ -9,7 +9,7 @@ function bids_make_json(job)
 %--------------------------------------------------------------------------
 
 for i=1:numel(job.input)
-    filename=fullfile(job.outdir{1},[job.input(i).filename,'.json']);
+    filename=fullfile(job.outdir{1},[job.input(i).filename,'.json']);tab=[];
     
     for ii=1:numel(job.input(i).inputjson)
         
@@ -29,6 +29,9 @@ for i=1:numel(job.input)
             
             if isfield(tmp,'varname')
                 f=tmp.varname;f(isspace(f))='_';
+                if job.input(i).maketab
+                    tab.(f)=[];
+                end
             end
             
             if ~isempty(f)
@@ -69,10 +72,16 @@ for i=1:numel(job.input)
                     if ~isempty(tmp.derivative)
                         root.(f).Derivative=deblank(tmp.derivative);
                     end
-                end  
-            end  
-        end   
+                end
+            end
+        end      
     end
+    
+    if isstruct(tab)
+        spm_save(fullfile(job.outdir{1},[job.input(i).filename,'.tsv']),tab);
+    end
+    
     spm_jsonwrite(filename,root,struct('indent','  '));clear root;
+end
 end
 

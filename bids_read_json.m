@@ -10,24 +10,32 @@ function bids_read_json(job)
 %--------------------------------------------------------------------------
 
 %% Main batch
+
+if job.addmerge
+    bids_merge_json(job);
+else
+
+inc=0;count=0;
 for i=1:numel(job.jsonselect)
-    
-    [op,filename,~]=fileparts(job.jsonselect{i});
-    if ~isempty(job.savedetails)
-        op=job.savedetails(1).outdir{1};
-    end
-    
-    root = spm_jsonread(job.jsonselect{i},struct('ReplacementStyle','nop'));
-    
+    [~,filename,~]=fileparts(job.jsonselect{i});
     if contains(filename,'dataset_description')
-        x = parse_datasetdescription(root,op);
-    else
-        job2.input(i).filename=filename;
+        inc=inc+1;
+        root = spm_jsonread(job.jsonselect{i},struct('ReplacementStyle','nop'));
+        x = parse_datasetdescription(root,job,inc);
+    end
+end
+
+for i=1:numel(job.jsonselect)
+    [~,filename,~]=fileparts(job.jsonselect{i});
+    if ~contains(filename,'dataset_description')
+        count=count+1;
+        root = spm_jsonread(job.jsonselect{i},struct('ReplacementStyle','nop'));
+        job2.input(count).filename=filename;
         tmp=fieldnames(root);
         for ii=1:numel(tmp)
             if strcmp(deblank(tmp{ii}),'MeasurementToolMetadata')
-                job2.input(i).inputjson{ii}.addtool.description=root.(tmp{ii}).Description;
-                job2.input(i).inputjson{ii}.addtool.url=root.(tmp{ii}).TermURL;
+                job2.input(count).inputjson{ii}.addtool.description=root.(tmp{ii}).Description;
+                job2.input(count).inputjson{ii}.addtool.url=root.(tmp{ii}).TermURL;
             else
                 job2.input(i).inputjson{ii}.addvar{1}.varname=deblank(tmp{ii});
                 subfield=fieldnames(root.(deblank(tmp{ii})));
@@ -57,24 +65,19 @@ for i=1:numel(job.jsonselect)
                 end
             end
         end
-        x.matlabbatch{1}.spm.tools.bids.makejson=job2;
-        x.matlabbatch{1}.spm.tools.bids.makejson.outdir=cellstr(op);
     end
-    if ~isempty(job.savedetails)
-        for k=1:numel(job.savedetails)
-            filename=fullfile(job.savedetails(k).outdir{1},[job.savedetails(k).filename,'.mat']);
-            spm_save(filename,x);
-        end
-    end
-    
-    if job.loadbatch
-        spm_jobman('interactive',x.matlabbatch);
-    end
+end
+
+inc=inc+1;
+x.matlabbatch{inc}.spm.tools.bids.makejson=job2;
+x.matlabbatch{inc}.spm.tools.bids.makejson.outdir=job.outdir;
+filename=fullfile(job.outdir{1},[job.filename,'.mat']);
+spm_save(filename,x);
 end
 end
 
 %% Sort out valid dataset description json
-function x = parse_datasetdescription(root,op)
+function x = parse_datasetdescription(root,job,inc)
 job2.name=root.Name;
 job2.bidsver=root.BIDSVersion;
 
@@ -161,7 +164,7 @@ if isfield(root,'DatasetDOI')
 else
     job2.doi='';
 end
-x.matlabbatch{1}.spm.tools.bids.datadescription=job2;
-x.matlabbatch{1}.spm.tools.bids.datadescription.outdir=cellstr(op);
+x.matlabbatch{inc}.spm.tools.bids.datadescription=job2;
+x.matlabbatch{inc}.spm.tools.bids.datadescription.outdir=job.outdir;
 end
 
