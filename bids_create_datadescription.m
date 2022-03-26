@@ -71,5 +71,5 @@ else
 end
 
 filename=fullfile(job.outdir{1},'dataset_description.json');
-spm_jsonwrite(filename,root);
+spm_jsonwrite(filename,root,struct('indent','  '));clear root;
 end
