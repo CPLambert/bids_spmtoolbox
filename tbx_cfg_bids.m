@@ -76,7 +76,7 @@ bidsver.tag         = 'bidsver';
 bidsver.name        = 'BIDS version';
 bidsver.help        = {'The version of the BIDS standard that was used (REQUIRED)'};
 bidsver.strtype     = 's';
-bidsver.val         = {'1.3.0'};
+bidsver.val         = {'1.6.0'};
 bidsver.num         = [1 Inf];
 
 % ---------------------------------------------------------------------
