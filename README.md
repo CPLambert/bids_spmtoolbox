@@ -1,11 +1,12 @@
 # bids_spmtoolbox
 Some suggestions for useful BIDs tools for SPM:
 
-Basically, creating BIDs compliant json files for dataset descriptions, tables etc., can be pretty time-consuming
+Basically, creating BIDs compliant json files for dataset descriptions, tables etc., can be pretty time-consuming. The idea is to try and take some of the pain out of that, and make it easier to do/revise. It has a few options where you can read in a json, allowing you to edit/create a datatables, or even merge several into one.
 
-The idea is to try and take some of the pain out of that, and make it easier to do/revise. It has a few options where you can read in a json, allowing you to edit/create a datatables, or even merge several into one.
+You will need to add to the spm/toolbox folder, as per most spm add ons. This has only been tested on SPM12 and MATLAB_R2019b/R2021b.
 
-For a useful library of standard measures, see https://github.com/qmaplab/phenotyping-json-library
+For a useful json library of standard measures, see https://github.com/qmaplab/phenotyping-json-library
+Please consider adding to this library if you transcribe a scale/measure that is not present.
 
 To learn more about BIDS see: https://bids-specification.readthedocs.io/en/stable/
 
