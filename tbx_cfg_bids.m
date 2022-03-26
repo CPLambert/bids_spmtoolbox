@@ -1,10 +1,12 @@
 function cfg = tbx_cfg_bids
-% BIDS Toolbox
+%% cfg = tbx_cfg_bids
+% BIDS Toolbox for phenotyping and dataset annotation
 % Collection of useful functions for creating BIDs compliant datasets in
 % SPM.
 %_______________________________________________________________________
 % Version History:
 % Version 1.0, May 2020
+% Version 1.1, March 2022 - Simplified merge function for stability for now
 %--------------------------------------------------------------------------
 % C.Lambert - Wellcome Centre for Human Neuroimaging
 %--------------------------------------------------------------------------
@@ -406,7 +408,95 @@ url.name            = 'Add URL';
 url.help            = {'Add term URL'};
 url.strtype         = 's';
 url.val             = {''};
-url.num             = [1 Inf];
+url.num             = [0 Inf];
+
+% ---------------------------------------------------------------------
+% Enter BIDS TaskName
+% ---------------------------------------------------------------------
+taskname                 = cfg_entry;
+taskname.tag             = 'taskname';
+taskname.name            = 'Add Task Name';
+taskname.help            = {'Name of the task (for resting state use the ?rest? prefix). No two tasks should have the same name. Task label is derived from this field by removing all non-alphanumeric ([a-zA-Z0-9]) characters. Note this does not have to be a ?behavioral task? that subjects perform, but can reflect some information about the conditions present when the data was acquired (e.g., ?rest?, ?seizure?, or ?sleep?). '};
+taskname.strtype         = 's';
+taskname.val             = {''};
+taskname.num             = [0 Inf];
+
+% ---------------------------------------------------------------------
+% Enter BIDS TaskName
+% ---------------------------------------------------------------------
+taskdesc                 = cfg_entry;
+taskdesc.tag             = 'taskdesc';
+taskdesc.name            = 'Add Task Description';
+taskdesc.help            = {'Add longer task description'};
+taskdesc.strtype         = 's';
+taskdesc.val             = {''};
+taskdesc.num             = [0 Inf];
+
+% ---------------------------------------------------------------------
+% Enter BIDS Instructions
+% ---------------------------------------------------------------------
+taskinst                 = cfg_entry;
+taskinst.tag             = 'taskinst';
+taskinst.name            = 'Add Instructions';
+taskinst.help            = {'Text of the instructions given to participants before the recording'};
+taskinst.strtype         = 's';
+taskinst.val             = {''};
+taskinst.num             = [0 Inf];
+
+% ---------------------------------------------------------------------
+% Enter BIDS Institution
+% ---------------------------------------------------------------------
+instname                 = cfg_entry;
+instname.tag             = 'instname';
+instname.name            = 'Add Institution Name';
+instname.help            = {'The name of the institution in charge of the equipment that produced the composite instances'};
+instname.strtype         = 's';
+instname.val             = {''};
+instname.num             = [0 Inf];
+
+% ---------------------------------------------------------------------
+% Enter BIDS Institution dept
+% ---------------------------------------------------------------------
+instdept                 = cfg_entry;
+instdept.tag             = 'instdept';
+instdept.name            = 'Add Institution Department';
+instdept.help            = {'The department in the institution in charge of the equipment that produced the composite instances'};
+instdept.strtype         = 's';
+instdept.val             = {''};
+instdept.num             = [0 Inf];
+
+% ---------------------------------------------------------------------
+% Enter BIDS Institution address
+% ---------------------------------------------------------------------
+instadd                 = cfg_entry;
+instadd.tag             = 'instadd';
+instadd.name            = 'Add Institution Address';
+instadd.help            = {'The address of the institution in charge of the equipment that produced the composite instances'};
+instadd.strtype         = 's';
+instadd.val             = {''};
+instadd.num             = [0 Inf];
+
+% ---------------------------------------------------------------------
+% Enter CogPO
+% ---------------------------------------------------------------------
+cogpoid                 = cfg_entry;
+cogpoid.tag             = 'cogpoid';
+cogpoid.name            = 'Add CogPO ID';
+cogpoid.help            = {'URL of the corresponding CogPO term.'};
+cogpoid.strtype         = 's';
+cogpoid.val             = {''};
+cogpoid.num             = [0 Inf];
+
+% ---------------------------------------------------------------------
+% Enter BIDS Institution address
+% ---------------------------------------------------------------------
+cogatlas                 = cfg_entry;
+cogatlas.tag             = 'cogatlas';
+cogatlas.name            = 'Add CogAtlas ID';
+cogatlas.help            = {'URL of the corresponding Cognitive Atlas Task term.'};
+cogatlas.strtype         = 's';
+cogatlas.val             = {''};
+cogatlas.num             = [0 Inf];
 
 % ---------------------------------------------------------------------
 % Enter BIDS derivative, if variable is derived from others?
@@ -450,12 +540,57 @@ addtool.val         = {description url};
 addtool.help        = {'If you are using a recognised measurement tool for your tabular data, you may want to include details at the start of the json file that describes the measurement tool (as a whole) e.g. Name and corresponding URL'};
 
 % ---------------------------------------------------------------------
+% Add measurement tool metadata (if applicable)
+% ---------------------------------------------------------------------
+addtask             = cfg_repeat;
+addtask.tag         = 'addtask';
+addtask.name        = 'Measurement task metadata';
+addtask.values         = {taskname taskdesc taskinst instname instdept instadd cogpoid cogatlas};
+addtask.val         = {taskname taskdesc};
+addtask.help        = {'Add task data'};
+
+% ---------------------------------------------------------------------
+% Add Annotation  metadata (if applicable)
+% ---------------------------------------------------------------------
+metaauthor                 = cfg_entry;
+metaauthor.tag             = 'metaauthor';
+metaauthor.name            = 'Author of annotation file';
+metaauthor.help            = {'Define author e.g. Lambert C'};
+metaauthor.strtype         = 's';
+metaauthor.val             = {''};
+metaauthor.num             = [0 Inf];
+
+metadescription                 = cfg_entry;
+metadescription.tag             = 'metadescription';
+metadescription.name            = 'Add description for annotation file';
+metadescription.help            = {'Description of annotation'};
+metadescription.strtype         = 's';
+metadescription.val             = {''};
+metadescription.num             = [0 Inf];
+
+metadate                 = cfg_entry;
+metadate.tag             = 'metadate';
+metadate.name            = 'Date created';
+metadate.help            = {'Date created in the form: yyyy-mm-ddTHH:MM:SS'};
+metadate.strtype         = 's';
+metadate.val             = {''};
+metadate.num             = [0 Inf];
+
+addannot             = cfg_repeat;
+addannot.tag         = 'addannot';
+addannot.name        = 'Data annotation metadata';
+addannot.values         = {metaauthor metadescription metadate};
+addannot.val         = {metaauthor metadescription};
+addannot.help        = {'Add task data'};
+
+
+% ---------------------------------------------------------------------
 % Add contents (variables) to JSON file
 % ---------------------------------------------------------------------
 inputjson           = cfg_repeat;
 inputjson.tag       = 'inputjson';
 inputjson.name      = 'Add JSON file contents';
-inputjson.values    = {addtool addvar};
+inputjson.values    = {addtool addtask addannot addvar};
 inputjson.help      = {'Add structured fields to JSON file'};
 inputjson.val       = {};
 inputjson.num       = [1 Inf];
@@ -627,22 +762,12 @@ readjson     = cfg_exbranch;
 readjson.tag = 'readjson';
 readjson.name= 'Read JSON files';
 readjson.val = {filename outdir addmerge jsonselect};
-readjson.help= {'Read in JSON files and make "Create JSOB files" job batch (for checking/editing). Currently, you have to load the .mat output into the GUI. If you select the "Merge" option, then the batch will be formatted to allow variables to be sub-selected and merged.'};
+readjson.help= {'Read in JSON files and make "Create JSOB files" job batch (for checking/editing). Currently, you have to load the .mat output into the GUI. If you select the "Merge" option, then the batch will be formatted to combine all of variables into a single json, that you can then format/merge in the same way as "read_json".'};
 readjson.prog= @bids_read_json;
-
-% ---------------------------------------------------------------------
-% 3. Merge several tables/variables into new table/json
-% ---------------------------------------------------------------------
-mergetab     = cfg_exbranch;
-mergetab.tag = 'mergetab';
-mergetab.name= 'Merge JSON files (run "Read JSON" first)';
-mergetab.val = {filename outdir inputmtab};
-mergetab.help= {'Run "Read in JSON files" and select "Merge" option. Loading the resulting saved matlab batch will then populate this menu and allow you to select variables and tables to combine and create new BIDs compliant json. If there are data tables, select top directory these are contained in. If this is blank then a new empty table will be created'};
-mergetab.prog= @bids_merge_data;
 
 %% MAIN SPM MENU: BIDS TOOLBOX
 cfg                 = cfg_choice;
 cfg.tag             = 'bids';
 cfg.name            = 'BIDS';
-cfg.values          = {datadescription makejson readjson mergetab};
+cfg.values          = {datadescription makejson readjson};
 end

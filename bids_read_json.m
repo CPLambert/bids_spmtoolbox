@@ -11,11 +11,6 @@ function bids_read_json(job)
 
 %% Main batch
 
-if job.addmerge
-    bids_merge_json(job);
-else
-
-inc=0;count=0;
 for i=1:numel(job.jsonselect)
     [~,filename,~]=fileparts(job.jsonselect{i});
     if contains(filename,'dataset_description')
@@ -68,13 +63,19 @@ for i=1:numel(job.jsonselect)
     end
 end
 
-inc=inc+1;
-x.matlabbatch{inc}.spm.tools.bids.makejson=job2;
-x.matlabbatch{inc}.spm.tools.bids.makejson.outdir=job.outdir;
+if job.addmerge
+    tmp.input.filename = 'mergedjson';
+    tmp.input.inputjson=[];
+    for k=1:numel(job2.input)
+        tmp.input.inputjson=[tmp.input.inputjson job2.input(k).inputjson];
+    end
+end
+x.matlabbatch{1}.spm.tools.bids.makejson=job2;
+x.matlabbatch{1}.spm.tools.bids.makejson.outdir=job.outdir;
 filename=fullfile(job.outdir{1},[job.filename,'.mat']);
 spm_save(filename,x);
 end
-end
+
 
 %% Sort out valid dataset description json
 function x = parse_datasetdescription(root,job,inc)

@@ -19,9 +19,83 @@ for i=1:numel(job.input)
             root.MeasurementToolMetadata.TermURL=job.input(i).inputjson{ii}.addtool.url;
         end
         
+        if isfield(job.input(i).inputjson{ii},'addtask')
+            tmp=[];
+            for iii=1:numel(job.input(i).inputjson{ii}.addtask)
+                nam=cell2mat(fieldnames(job.input(i).inputjson{ii}.addtask{iii}));
+                tmp.(nam)=job.input(i).inputjson{ii}.addtask{iii}.(nam);
+            end
+            
+            if isfield(tmp,'taskname')
+                if ~isempty(tmp.taskname)
+                    root.TaskName=deblank(tmp.taskname);
+                end
+            end
+            
+            if isfield(tmp,'taskdesc')
+                if ~isempty(tmp.taskdesc)
+                    root.TaskDescription=deblank(tmp.taskdesc);
+                end
+            end
+            
+            if isfield(tmp,'taskinst')
+                if ~isempty(tmp.taskinst)
+                    root.Instructions=deblank(tmp.taskinst);
+                end
+            end
+            
+            if isfield(tmp,'instname')
+                if ~isempty(tmp.instname)
+                    root.InstitutionName=deblank(tmp.instname);
+                end
+            end
+            
+            if isfield(tmp,'instdept')
+                if ~isempty(tmp.instdept)
+                    root.InstitutionalDepartmentName=deblank(tmp.instdept);
+                end
+            end
+            
+            if isfield(tmp,'instadd')
+                if ~isempty(tmp.instadd)
+                    root.InstitutionAddress=deblank(tmp.instadd);
+                end
+            end
+            
+            if isfield(tmp,'cogpoid')
+                if ~isempty(tmp.cogpoid)
+                    root.CogPOID=deblank(tmp.cogpoid);
+                end
+            end
+            
+            if isfield(tmp,'cogatlas')
+                if ~isempty(tmp.cogatlas)
+                    root.CogAtlasID=deblank(tmp.cogatlas);
+                end
+            end
+        end
+        
+        
+        if isfield(job.input(i).inputjson{ii},'addannot')
+            for k=1:numel(job.input(i).inputjson{ii}.addannot)
+                if isfield(job.input(i).inputjson{ii}.addannot{k},'metaauthor')
+                    root.annotation.metadata.createdby=job.input(i).inputjson{ii}.addannot{k}.metaauthor;
+                end
+                
+                if isfield(job.input(i).inputjson{ii}.addannot{k},'metadescription')
+                    root.annotation.metadata.description=job.input(i).inputjson{ii}.addannot{k}.metadescription;
+                end
+                
+                if isfield(job.input(i).inputjson{ii}.addannot{k},'metadate')
+                    root.annotation.metadata.datecreated=job.input(i).inputjson{ii}.addannot{k}.metadate;
+                end
+                
+            end
+        end
+        
         %% Add tabular data &/or custom fields
         if isfield(job.input(i).inputjson{ii},'addvar')
-            f=[];tmp=[];
+            f=[];tmp=[];c=[];
             for iii=1:numel(job.input(i).inputjson{ii}.addvar)
                 nam=cell2mat(fieldnames(job.input(i).inputjson{ii}.addvar{iii}));
                 tmp.(nam)=job.input(i).inputjson{ii}.addvar{iii}.(nam);
@@ -70,11 +144,11 @@ for i=1:numel(job.input)
                 
                 if isfield(tmp,'derivative')
                     if ~isempty(tmp.derivative)
-                        root.(f).Derivative=deblank(tmp.derivative);
+                        root.(f).Derivative=tmp.derivative;
                     end
                 end
             end
-        end      
+        end
     end
     
     if isstruct(tab)
