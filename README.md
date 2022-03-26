@@ -12,4 +12,4 @@ To learn more about BIDS see: https://bids-specification.readthedocs.io/en/stabl
 
 More tools built based on this to follow. I've also added a few other functions/snippits in the useful_functions folder 
 
-If you are generous enough to credit the toolbox, please simply by providing a link to the repository
+If you are generous enough to credit the toolbox, please simply by providing a link to the repository: https://github.com/CPLambert/bids_spmtoolbox
