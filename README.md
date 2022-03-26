@@ -1,5 +1,5 @@
 # bids_spmtoolbox
-Some suggestions for useful BIDs tools for SPM:
+Some useful tools for creating BIDs compliant datasets using SPM:
 
 Basically, creating BIDs compliant json files for dataset descriptions, tables etc., can be pretty time-consuming. The idea is to try and take some of the pain out of that, and make it easier to do/revise. It has a few options where you can read in a json, allowing you to edit/create a datatables, or even merge several into one.
 
