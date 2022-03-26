@@ -1,5 +1,9 @@
 function events = bids_events_stamp(events,extras)
 %% function task = bids_task_stamp(task)
+%
+% This file is intended as a function for behavioural tasks and does not get used in the toolbox.
+% I've left it in as it may be useful for some people
+%
 % Using the BIDS format, you should be creating an events.tsv file for your
 % paradigms. This is a short function to grow this at each event in the paradigm
 % The basic structure has the following required fields:
