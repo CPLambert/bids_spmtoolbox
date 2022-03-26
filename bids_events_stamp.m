@@ -2,6 +2,12 @@ function events = bids_events_stamp(events,extras)
 %% function task = bids_task_stamp(task)
 %
 % This file is intended as a function for behavioural tasks and does not get used in the toolbox.
+% Pass it an "event" array and "extras" to add and it will timestamp. The ideas is to grow
+% through your task. You will have to define the full "event" array when you first use it,
+% before you pass it to the function, as that is how it works out strings vs. numbers (details below)
+%
+% The static version is used for coverting historic datasets (i.e. you pass the timestamp rather than create)
+%
 % I've left it in as it may be useful for some people
 %
 % Using the BIDS format, you should be creating an events.tsv file for your
