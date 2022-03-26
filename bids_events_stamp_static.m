@@ -24,6 +24,11 @@ function events = bids_events_stamp_static(events,extras)
 % events.trial_type = [];
 % events.image = [];
 % events.value
+%
+% This file is intended as a function for behavioural tasks and does not get used in the toolbox.
+% The static version is used for coverting historic datasets (i.e. you pass the timestamp rather than create)
+%
+% I've left it in as it may be useful for some people
 %__________________________________________________________________________
 % C.Lambert, Wellcome Centre for Human Neuroimaging
 % Version 1.0, November 2021
